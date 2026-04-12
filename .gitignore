@@ -1,5 +1,9 @@
 node_modules/
 dist/
-*.db
+.DS_Store
 .ai/
+.codex/
+.cursor/
+.gemini/
+.claude/
 CLAUDE.md
