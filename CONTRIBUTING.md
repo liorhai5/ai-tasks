@@ -34,7 +34,7 @@ Follows the same pattern as [ai-memory](https://github.com/liorhai5/ai-memory):
 
 - **AppContext factory** (`app.ts`) — creates DB + all services, passed to CLI and MCP
 - **Service layer** — business logic, validation, transactions
-- **CLI and MCP** — parallel interfaces over the same services
+- **CLI and MCP** — parallel interfaces over the same services. MCP exposes a superset of CLI fields (`actor`, `session_id`, `provider`) for agent tracking. This asymmetry is intentional.
 - **SQLite** — single file, machine-level, WAL mode, FK enforcement
 
 ## Schema
@@ -42,7 +42,7 @@ Follows the same pattern as [ai-memory](https://github.com/liorhai5/ai-memory):
 Three tables: `projects`, `tasks`, `task_updates`. See `src/db/schema.ts` for the full DDL.
 
 Key design decisions:
-- `depends_on` is a JSON text column queried via `json_each()`
+- `depends_on` is a JSON text column queried via `json_each()` — avoids a junction table join for small dependency lists typical of personal use
 - `task_updates` is an append-only audit log (field/value/actor/session)
 - `updated_at` is application-managed (set in service layer on every update)
 - Project deletion is app-level cascade (CLI-only, not exposed via MCP)
@@ -63,7 +63,35 @@ npm run build      # TypeScript → dist/
 npm test           # vitest — 60 tests, ~250ms
 ```
 
-Tests use temp-dir SQLite databases (`createTempApp()` in test-helpers).
+### Writing Tests
+
+Tests use temp-dir SQLite databases via `createTempApp()`. Each test gets a fresh, isolated database:
+
+```typescript
+import { describe, it, expect, beforeEach } from 'vitest';
+import { createTempApp } from './test-helpers.js';
+import type { AppContext } from '../src/app.js';
+
+describe('my feature', () => {
+  let app: AppContext;
+
+  beforeEach(() => {
+    ({ app } = createTempApp());
+    app.projectService.add('test-project');
+  });
+
+  it('does the thing', () => {
+    const task = app.taskService.create({ title: 'test', project: 'test-project' });
+    expect(task.status).toBe('todo');
+  });
+});
+```
+
+Test files go in `tests/` and must match the pattern `*.test.ts`. Run a single file with:
+
+```bash
+npx vitest run tests/tasks.test.ts
+```
 
 ## Conventions
 

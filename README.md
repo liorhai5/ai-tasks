@@ -10,25 +10,31 @@ Built for developers who work across multiple repos with AI coding assistants (C
 npm install -g ai-tasks
 ```
 
-Requires Node.js >= 22.
+Requires Node.js >= 22. The package builds from source on install (`prepack`), so a TypeScript-compatible environment is needed.
 
 ## Quick Start
 
 ```bash
-# Register a project
+# Register a project (name + optional path for auto-detection)
 ai-tasks project add my-project /path/to/repo
 
-# Create a task
+# Create a task in that project
 ai-tasks create "Fix timezone handling" --project my-project --priority high
 
 # List tasks across all projects
 ai-tasks list
 
-# Update a task
+# Update a task with status change + progress note
 ai-tasks update 1 --status in_progress --note "Started investigating"
 
-# Load full task details
+# Load task summary (fields + last 3 updates)
+ai-tasks load 1
+
+# Load full details (all updates, dependency status, parent task)
 ai-tasks load 1 --full
+
+# Machine-readable output (all commands support --json)
+ai-tasks list --json
 
 # Check database health
 ai-tasks status
@@ -45,17 +51,19 @@ ai-tasks mcp
 Register with Claude Code:
 
 ```bash
-npx add-mcp "ai-tasks mcp" -g -n ai-tasks -y
+claude mcp add ai-tasks -- ai-tasks mcp
 ```
 
 ### MCP Tools
 
-| Tool | Purpose |
-|------|---------|
-| `ai-tasks-list` | Query tasks with project/status filters, pagination |
-| `ai-tasks-load` | Load a task with update history, dependency status, parent |
-| `ai-tasks-create` | Create a task (validates project, warns on dangling deps) |
-| `ai-tasks-update` | Update fields + optional progress note (atomic with audit log) |
+| Tool | Purpose | Key Parameters |
+|------|---------|----------------|
+| `ai-tasks-list` | Query tasks with filters | `project?`, `status?`, `limit?`, `offset?` |
+| `ai-tasks-load` | Load task with history | `task_id`, `full?` |
+| `ai-tasks-create` | Create a task | `title`, `project`, `description?`, `priority?`, `stage?`, `parent_id?`, `depends_on?` |
+| `ai-tasks-update` | Update fields + progress note | `task_id`, `status?`, `priority?`, `stage?`, `assignee?`, `note?`, `actor?`, `session_id?`, `provider?` |
+
+MCP tools expose a superset of CLI fields. The `actor`, `session_id`, and `provider` fields are MCP-only — they track which tool, session, and LLM made a change, linking to ai-memory conversations via `session_id`.
 
 ## CLI Reference
 
@@ -63,16 +71,16 @@ npx add-mcp "ai-tasks mcp" -g -n ai-tasks -y
 
 ```
 ai-tasks project add <name> [path]       # Register a project
-ai-tasks project list                     # List all projects
+ai-tasks project list                     # List all projects with task counts
 ai-tasks project update <name> --path P   # Update project path
-ai-tasks project remove <name>            # Remove project + all its tasks
+ai-tasks project remove <name>            # Remove project + all its tasks (with warning)
 ```
 
 ### Task Commands
 
 ```
 ai-tasks list [--project P] [--status S]  # List tasks (status is comma-separated)
-ai-tasks load <id> [--full]               # Load task details
+ai-tasks load <id> [--full]               # Load task details (--full: all updates + deps + parent)
 ai-tasks create <title> [--project P] [--priority P] [--stage S] [--parent ID] [--depends-on "5,7"]
 ai-tasks update <id> [--status S] [--stage S] [--priority P] [--assignee A] [--note TEXT]
 ai-tasks status                           # Database health
@@ -89,9 +97,11 @@ All commands support `--json` for machine-readable output. Project is auto-detec
 
 `low` | `medium` | `high` | `critical`
 
-### Stage Values (methodology tracking)
+### Stage Values
 
 `research` | `design` | `review` | `implement` | `verify` | `record`
+
+Optional workflow tracking. Map tasks to methodology stages if you follow a structured design-before-implement workflow.
 
 ## Storage
 
