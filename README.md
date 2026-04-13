@@ -4,13 +4,29 @@ Personal, machine-local task coordination service. Tracks tasks, progress, depen
 
 Built for developers who work across multiple repos with AI coding assistants (Claude Code, Cursor, Codex). Tasks persist between sessions — no more reconstructing context from memory and git log.
 
-## Install
+## Setup
+
+Requires Node.js >= 22.
 
 ```bash
-npm install -g ai-tasks
+# 1. Clone and build
+git clone https://github.com/liorhai5/ai-tasks.git && cd ai-tasks
+npm install && npm run build
+npm link
+
+# 2. Register MCP server (makes tools available to AI assistants)
+npx add-mcp "ai-tasks mcp" -g -n ai-tasks -y
+
+# 3. Install /tsk skill (Claude Code slash command)
+npx skills add liorhai5/ai-tasks
 ```
 
-Requires Node.js >= 22. The package builds from source on install (`prepack`), so a TypeScript-compatible environment is needed.
+Verify it works:
+
+```bash
+ai-tasks status
+# → Should show: Database path, 0 projects, 0 tasks
+```
 
 ## Quick Start
 
@@ -40,21 +56,24 @@ ai-tasks list --json
 ai-tasks status
 ```
 
-## MCP Server
+## `/tsk` Skill
 
-Expose tasks to AI coding assistants via MCP (stdio transport):
+Requires the MCP server (step 2 in Setup). Use the `/tsk` slash command in Claude Code:
 
-```bash
-ai-tasks mcp
+```
+/tsk list                    — list tasks across projects
+/tsk load <id>               — load task with full history (use an ID from list)
+/tsk create "Fix the bug"    — create a task interactively
+/tsk update <id>             — update status, add notes
+/tsk triage                  — review active tasks, suggest next actions (LLM-powered)
+/tsk decompose <id>          — break a task into subtasks (LLM-powered)
 ```
 
-Register with Claude Code:
+## MCP Tools
 
-```bash
-claude mcp add ai-tasks -- ai-tasks mcp
-```
+Registered via step 2 in Setup. Used directly by AI assistants and by the `/tsk` skill.
 
-### MCP Tools
+### Tools
 
 | Tool | Purpose | Key Parameters |
 |------|---------|----------------|
