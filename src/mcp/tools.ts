@@ -21,7 +21,8 @@ export function createToolHandlers(app: AppContext) {
           status: t.status,
           priority: t.priority,
           stage: t.stage,
-          assignee: t.assignee
+          assignee: t.assignee,
+          updated_at: t.updated_at
         })),
         total,
         statusSummary

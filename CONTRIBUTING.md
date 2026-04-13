@@ -20,6 +20,17 @@ src/
   utils/
     resolve-project.ts      # Auto-detect project from cwd
 
+skills/
+  tsk/
+    SKILL.md                # Skill metadata + command routing
+    commands/
+      list.md               # /tsk list — list tasks
+      load.md               # /tsk load — load task details
+      create.md             # /tsk create — create interactively
+      update.md             # /tsk update — update fields + notes
+      triage.md             # /tsk triage — LLM-powered task review
+      decompose.md          # /tsk decompose — LLM-powered subtask breakdown
+
 tests/
   test-helpers.ts           # createTempApp() — temp-dir SQLite for tests
   schema.test.ts            # Schema, indexes, FK enforcement, cascade behavior
