@@ -3,7 +3,15 @@
   "version": "0.1.0",
   "description": "Personal, machine-local task coordination service for AI coding assistants",
   "type": "module",
-  "license": "ISC",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liorhai5/ai-tasks.git"
+  },
+  "homepage": "https://github.com/liorhai5/ai-tasks#readme",
+  "bugs": {
+    "url": "https://github.com/liorhai5/ai-tasks/issues"
+  },
   "author": "Lior Hai",
   "engines": {
     "node": ">=22"
