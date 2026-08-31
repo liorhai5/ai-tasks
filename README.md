@@ -148,6 +148,10 @@ npm run build
 npm test
 ```
 
-## License
+## Contributing
 
-ISC
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Licence
+
+[MIT](LICENSE) © Lior Hai
